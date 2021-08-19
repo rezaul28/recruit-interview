@@ -85,7 +85,10 @@ const Snake = () => {
         const head = snake[0];
         console.log(head);
         let newHead = { x: head.x + direction.x, y: head.y + direction.y };
-        
+        if(newHead.x>24) newHead.x=0;
+        if(newHead.x<0)  newHead.x=24;
+        if(newHead.y>24) newHead.y=0;
+        if(newHead.y<0)  newHead.y=24;
         // make a new snake by extending head
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
         const newSnake = [newHead, ...snake];
