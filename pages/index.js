@@ -73,17 +73,18 @@ const Snake = () => {
 
   // snake[0] is head and snake[snake.length - 1] is tail
   const [snake, setSnake] = useState(getDefaultSnake());
-  const [direction, setDirection] = useState(Direction.Right);
+  let [direction, setDirection] = useState(Direction.Right);
 
-  const [food, setFood] = useState({ x: 4, y: 10 });
+  const [food, setFood] = useState([{ x: 4, y: 10 }]);
   const [score, setScore] = useState(0);
   const [scoreUp, setScoreUp]=useState(false);
-  const [gameOver, setGameOver]=useState(false)
+  const [gameOver, setGameOver]=useState(false);
   // move the snake
   useEffect(() => {
     const runSingleStep = () => {
       setSnake((snake) => {
         const head = snake[0];
+        //console.log(direction);
         let newHead = { x: head.x + direction.x, y: head.y + direction.y };
         if(isSnake(newHead)){
           setGameOver((gameOver)=>true)
@@ -108,7 +109,7 @@ const Snake = () => {
     };
 
     runSingleStep();
-    const timer = setInterval(runSingleStep, 500);
+    let timer = setInterval(runSingleStep, 500);
 
     return () => clearInterval(timer);
   }, [direction, food,scoreUp]);
@@ -117,7 +118,7 @@ const Snake = () => {
   useEffect(()=>{
     if(gameOver){ 
       setSnake((snake)=>snake= getDefaultSnake())
-      setFood((food)=>food={x:4,y:10})
+      setFood((food)=>food=[{x:4,y:10}])
       setScore((score)=>0)
       setGameOver((gameOver)=>false)
     }
@@ -135,13 +136,22 @@ const Snake = () => {
       while (isSnake(newFood)) {
         newFood = getRandomCell();
       }
-
-      setFood(newFood);
+      let collideFoodPosition = collideFood(head);
+      food.push(newFood)
+      newFood=food.filter((point)=>{
+        let abc = (point.x!=collideFoodPosition[0].x && point.y!=collideFoodPosition[0].y)
+        return abc
+      })
+      console.log(newFood);
+      setFood((food)=>{
+        return food=newFood
+      });
     }
   }, [snake]);
 
   useEffect(() => {
     const handleNavigation = (event) => {
+
       switch (event.key) {
         case "ArrowUp":
           setDirection(Direction.Top);
@@ -167,10 +177,12 @@ const Snake = () => {
 
   // ?. is called optional chaining
   // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining
-  const isFood = ({ x, y }) => food?.x === x && food?.y === y;
-
+  const isFood = ({ x, y }) =>
+      food.find((position)=>position.x === x && position.y === y);
+  const collideFood = ({ x, y }) =>
+     food.filter((position)=>position.x === x && position.y === y);
   const isSnake = ({ x, y }) =>
-    snake.find((position) => position.x === x && position.y === y);
+     snake.find((position) => position.x === x && position.y === y);
 
   const cells = [];
   for (let x = 0; x < Config.width; x++) {
