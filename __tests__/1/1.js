@@ -24,7 +24,11 @@ test("Example 1: return names of all subordinates of person", () => {
 });
 
 // return company name from email address
-const exercise11 = (email) => {};
+const exercise11 = (email) => {
+  let sub = email.split('@');
+  sub = sub[1].split('.com');
+  return sub[0]
+};
 
 test("Exercise 1.1: return company name from email address", () => {
   expect(exercise11("katherinecohen@ecraze.com")).toEqual("ecraze");
@@ -32,7 +36,9 @@ test("Exercise 1.1: return company name from email address", () => {
 });
 
 // given a person, return list of companies of her subordinates
-const exercise12 = (person) => {};
+const exercise12 = (person) => {
+  return person.subordinates.map((subordinate) => exercise11(subordinate.email));
+};
 
 test("Exercise 1.2: given a person, return list of companies of her subordinates", () => {
   expect(exercise12(CruzHarrell)).toEqual([
@@ -63,7 +69,11 @@ test("Example 2: given a person and gender, return number of subordinates of per
 });
 
 // given a person and [minAge, maxAge], return number of subordinates in that age range
-const exercise21 = (person, [minAge, maxAge]) => {};
+const exercise21 = (person, [minAge, maxAge]) => {
+  return person.subordinates.filter(
+    (subordinate) => subordinate.age >= minAge && subordinate.age <= maxAge
+  ).length;
+};
 
 test("Exercise 2.1: given a person and [minAge, maxAge], return number of subordinates in that age range", () => {
   expect(exercise21(CruzHarrell, [21, 49])).toEqual(5);
@@ -71,7 +81,12 @@ test("Exercise 2.1: given a person and [minAge, maxAge], return number of subord
 });
 
 // given a person, return the names of subordinates who themselves have subordinates
-const exercise22 = (person) => {};
+const exercise22 = (person) => {
+  let subHasSub = person.subordinates.filter(
+    (subordinate) => subordinate.subordinates.length > 0
+  )
+  return subHasSub.map((person) => person.name);
+};
 
 test("Exercise 2.2: given a person, return the names of subordinates who themselves have subordinates", () => {
   expect(exercise22(CruzHarrell)).toEqual([
@@ -101,7 +116,12 @@ test("Example 3: given a person, return total balance of her subordinates", () =
 });
 
 // given a person, return average age of her subordinates
-const exercise31 = (person) => {};
+const exercise31 = (person) => {
+  let totalAge = person.subordinates.reduce(
+    (total, subordinate) => total + subordinate.age, 0
+  );
+  return totalAge / person.subordinates.length;
+};
 
 test("Exercise 3.1: given a person, return average age of her subordinates", () => {
   expect(exercise31(CruzHarrell)).toBeCloseTo(50.2);
@@ -110,16 +130,20 @@ test("Exercise 3.1: given a person, return average age of her subordinates", () 
 
 // given a person, return difference between female and male subordinates
 // e.g: if someone has 4 female subordinates and 7 male subordinates, return -3(=4-7)
-const exercise32 = (person) => {};
-
+const exercise32 = (person) => {
+  return example2(person, "female") - example2(person, "male");
+};
 test("Exercise 3.2: given a person, return difference between female and male subordinates", () => {
   expect(exercise32(CruzHarrell)).toEqual(2);
   expect(exercise32(RoxanneSimmons)).toEqual(1);
 });
 
 // do the same exercise32, but with using only 1 reduce function and nothing else
-const exercise32a = (person) => {};
-
+const exercise32a = (person) => {
+  return person.subordinates.reduce(
+    (total, subordinate) => subordinate.gender == "male" ? --total : ++total, 0
+  )
+};
 test("Exercise 3.2a: given a person, return difference between female and male subordinates", () => {
   expect(exercise32a(CruzHarrell)).toEqual(2);
   expect(exercise32a(RoxanneSimmons)).toEqual(1);
@@ -132,7 +156,13 @@ test("Exercise 3.2a: given a person, return difference between female and male s
 */
 
 // implement map function
-const map = (array, func) => {};
+const map = (array, func) => {
+  let mappedArray = []
+  for (let i = 0; i < array.length; i++) {
+    mappedArray.push(func(array[i]));
+  }
+  return mappedArray;
+};
 
 test("Exercise 4.1: implement map function", () => {
   const m1 = [Math.random(), Math.random(), Math.random(), Math.random()];
@@ -143,7 +173,13 @@ test("Exercise 4.1: implement map function", () => {
 });
 
 // implement filter function
-const filter = (array, func) => {};
+const filter = (array, func) => {
+  let filteredArray = [];
+  for (let i = 0; i < array.length; i++) {
+    if (func(array[i])) filteredArray.push(array[i]);
+  }
+  return filteredArray;
+};
 
 test("Exercise 4.2: implement filter function", () => {
   const f1 = [
@@ -161,7 +197,13 @@ test("Exercise 4.2: implement filter function", () => {
 });
 
 // implement reduce
-const reduce = (array, func, initalValue) => {};
+const reduce = (array, func, initalValue) => {
+  let total = initalValue;
+  for (let i = 0; i < array.length; i++) {
+    total = func(total, array[i])
+  }
+  return total;
+};
 
 test("Exercise 4.3: implement reduce function", () => {
   const r1 = [Math.random(), Math.random(), Math.random(), Math.random()];
@@ -196,8 +238,15 @@ test("Example 5: return total number of people in the dataset", () => {
 });
 
 // given a color, return number of people who have that eye color
-const exercise51 = (color) => {};
-
+const exercise51 = (color) => {
+  const getAllPeople = (person) =>
+    //add 1 if eyeColor matched, 0 otherwise
+    (person.eyeColor === color ? 1 : 0) +
+    person.subordinates
+    .map((subordinate) => getAllPeople(subordinate))
+    .reduce((total, employees) => total + employees, 0);
+  return getAllPeople(CruzHarrell);
+};
 test("Exercise 5.1: given a color, return number of people who have that eye color", () => {
   expect(exercise51("green")).toEqual(11);
 });
@@ -217,7 +266,20 @@ test("distance: given two locations, return the distance between them", () => {
 });
 
 // given maxDistance, return number of employees who lives within maxDistance distance of their managers
-const exercise52 = (maxDistance) => {};
+const exercise52 = (maxDistance) => {
+  let count = 0;
+  let getEmployeesWithinRange = (person) => {
+    if (person.subordinates.length > 0) {
+      for (let i = 0; i < person.subordinates.length; i++) {
+        let distanceBetween = distance(person.location, person.subordinates[i].location)
+        if (distanceBetween <= maxDistance) ++count;
+        getEmployeesWithinRange(person.subordinates[i])
+      }
+    }
+  }
+  getEmployeesWithinRange(CruzHarrell);
+  return count;
+};
 
 test("Exercise 5.2: given maxDistance, return number of employees who lives within maxDistance distance of their managers", () => {
   expect(exercise52(5)).toEqual(25);
@@ -226,8 +288,21 @@ test("Exercise 5.2: given maxDistance, return number of employees who lives with
 
 // return first name (not full name) of all person who has the same company as their manager
 // hint: exercise11
-const exercise53 = () => {};
-
+const exercise53 = () => {
+  let employees = [];
+  let getEmployeesWithinRange = (person) => {
+    if (person.subordinates.length > 0) {
+      let managerCompanyName = exercise11(person.email)
+      for (let i = 0; i < person.subordinates.length; i++) {
+        let subCompanyName = exercise11(person.subordinates[i].email)
+        if (managerCompanyName === subCompanyName) employees.push(person.subordinates[i].name.split(' ')[0])
+        getEmployeesWithinRange(person.subordinates[i])
+      }
+    }
+  }
+  getEmployeesWithinRange(CruzHarrell);
+  return employees;
+};
 test("Exercise 5.3: return first name (not full name) of all person who has the same company as their manager", () => {
   expect(exercise53()).toEqual(["Suzanne", "Gregory", "Buchanan"]);
 });
