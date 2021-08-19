@@ -73,13 +73,12 @@ const Snake = () => {
 
   // snake[0] is head and snake[snake.length - 1] is tail
   const [snake, setSnake] = useState(getDefaultSnake());
-  let [direction, setDirection] = useState(Direction.Right);
+  const [direction, setDirection] = useState(Direction.Right);
 
   const [food, setFood] = useState([{ x: 4, y: 10 }]);
   const [score, setScore] = useState(0);
   const [scoreUp, setScoreUp] = useState(false);
   const [gameOver, setGameOver] = useState(false);
-  const [started, setStarted] = useState(false);
   // move the snake
   useEffect(() => {
     const runSingleStep = () => {
@@ -93,13 +92,13 @@ const Snake = () => {
           return snake;
         }
         //if goes to out of right boundary, appears from left
-        if (newHead.x > 24) newHead.x = 0;
+        if (newHead.x > Config.width) newHead.x = 0;
         //if goes to out of left boundary, appears from right
-        if (newHead.x < 0) newHead.x = 24;
+        if (newHead.x < 0) newHead.x = Config.width;
         //if goes to out of top boundary, appears from bottom
-        if (newHead.y > 24) newHead.y = 0;
+        if (newHead.y > Config.width) newHead.y = 0;
         //if goes to out of bottom boundary, appears from top
-        if (newHead.y < 0) newHead.y = 24;
+        if (newHead.y < 0) newHead.y = Config.width;
         // make a new snake by extending head
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
         const newSnake = [newHead, ...snake];
@@ -109,7 +108,6 @@ const Snake = () => {
           newSnake.pop();
         }
         setScoreUp((scoreUp) => false);
-        setStarted(true);
         return newSnake;
       });
     };
