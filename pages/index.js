@@ -78,13 +78,18 @@ const Snake = () => {
   const [food, setFood] = useState({ x: 4, y: 10 });
   const [score, setScore] = useState(0);
   const [scoreUp, setScoreUp]=useState(false);
+  const [gameOver, setGameOver]=useState(false)
   // move the snake
   useEffect(() => {
     const runSingleStep = () => {
       setSnake((snake) => {
         const head = snake[0];
-        console.log(head);
         let newHead = { x: head.x + direction.x, y: head.y + direction.y };
+        if(isSnake(newHead)){
+          setGameOver((gameOver)=>true)
+          return snake;
+        }
+
         if(newHead.x>24) newHead.x=0;
         if(newHead.x<0)  newHead.x=24;
         if(newHead.y>24) newHead.y=0;
@@ -108,6 +113,16 @@ const Snake = () => {
     return () => clearInterval(timer);
   }, [direction, food,scoreUp]);
 
+
+  useEffect(()=>{
+    if(gameOver){ 
+      setSnake((snake)=>snake= getDefaultSnake())
+      setFood((food)=>food={x:4,y:10})
+      setScore((score)=>0)
+      setGameOver((gameOver)=>false)
+    }
+    
+  },[gameOver])
   // update score whenever head touches a food
   useEffect(() => {
     const head = snake[0];
