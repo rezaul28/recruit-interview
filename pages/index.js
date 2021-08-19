@@ -77,21 +77,24 @@ const Snake = () => {
 
   const [food, setFood] = useState({ x: 4, y: 10 });
   const [score, setScore] = useState(0);
-
+  const [scoreUp, setScoreUp]=useState(false);
   // move the snake
   useEffect(() => {
     const runSingleStep = () => {
       setSnake((snake) => {
         const head = snake[0];
-        const newHead = { x: head.x + direction.x, y: head.y + direction.y };
-
+        console.log(head);
+        let newHead = { x: head.x + direction.x, y: head.y + direction.y };
+        
         // make a new snake by extending head
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
         const newSnake = [newHead, ...snake];
 
         // remove tail
-        newSnake.pop();
-
+        if(!scoreUp){
+          newSnake.pop();
+        }
+        setScoreUp((scoreUp)=>false)
         return newSnake;
       });
     };
@@ -100,7 +103,7 @@ const Snake = () => {
     const timer = setInterval(runSingleStep, 500);
 
     return () => clearInterval(timer);
-  }, [direction, food]);
+  }, [direction, food,scoreUp]);
 
   // update score whenever head touches a food
   useEffect(() => {
@@ -109,7 +112,7 @@ const Snake = () => {
       setScore((score) => {
         return score + 1;
       });
-
+      setScoreUp((scoreUp)=>true)
       let newFood = getRandomCell();
       while (isSnake(newFood)) {
         newFood = getRandomCell();
