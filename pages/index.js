@@ -191,26 +191,30 @@ const Snake = () => {
     const handleNavigation = (event) => {
       switch (event.key) {
         case "ArrowUp":
-          setDirection(Direction.Top);
+          if(JSON.stringify(direction)!=JSON.stringify(Direction.Bottom))
+            setDirection(Direction.Top);
           break;
 
         case "ArrowDown":
-          setDirection(Direction.Bottom);
+          if(JSON.stringify(direction)!=JSON.stringify(Direction.Top))
+            setDirection(Direction.Bottom);
           break;
 
         case "ArrowLeft":
-          setDirection(Direction.Left);
+          if(JSON.stringify(direction)!=JSON.stringify(Direction.Right))
+            setDirection(Direction.Left);
           break;
 
         case "ArrowRight":
-          setDirection(Direction.Right);
+          if(JSON.stringify(direction)!=JSON.stringify(Direction.Left))
+            setDirection(Direction.Right);
           break;
       }
     };
     window.addEventListener("keydown", handleNavigation);
 
     return () => window.removeEventListener("keydown", handleNavigation);
-  }, []);
+  }, [direction]);
 
   // ?. is called optional chaining
   // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining
