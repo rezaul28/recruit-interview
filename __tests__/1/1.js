@@ -225,9 +225,9 @@ const example5 = () => {
     1 +
     // recursively count total employees of all subordinates of person
     person.subordinates
-      .map((subordinate) => getTotalPeople(subordinate))
-      // add them together
-      .reduce((total, employees) => total + employees, 0);
+    .map((subordinate) => getTotalPeople(subordinate))
+    // add them together
+    .reduce((total, employees) => total + employees, 0);
 
   // return number of people under the top-most person
   return getTotalPeople(CruzHarrell);
@@ -254,14 +254,20 @@ test("Exercise 5.1: given a color, return number of people who have that eye col
 const distance = (location1, location2) =>
   Math.sqrt(
     (location1.longitude - location2.longitude) *
-      (location1.longitude - location2.longitude) +
-      (location1.latitude - location2.latitude) *
-        (location1.latitude - location2.latitude)
+    (location1.longitude - location2.longitude) +
+    (location1.latitude - location2.latitude) *
+    (location1.latitude - location2.latitude)
   );
 
 test("distance: given two locations, return the distance between them", () => {
   expect(
-    distance({ longitude: 67, latitude: 78 }, { longitude: 74, latitude: 102 })
+    distance({
+      longitude: 67,
+      latitude: 78
+    }, {
+      longitude: 74,
+      latitude: 102
+    })
   ).toEqual(25);
 });
 
@@ -292,9 +298,12 @@ const exercise53 = () => {
   let employees = [];
   let getEmployeesWithinRange = (person) => {
     if (person.subordinates.length > 0) {
+      //get manager's company name from her email
       let managerCompanyName = exercise11(person.email)
       for (let i = 0; i < person.subordinates.length; i++) {
+        //get subordinate's company name from her email.
         let subCompanyName = exercise11(person.subordinates[i].email)
+        //if manager name and subordinate's company is same then returns the first name of subordinate.
         if (managerCompanyName === subCompanyName) employees.push(person.subordinates[i].name.split(' ')[0])
         getEmployeesWithinRange(person.subordinates[i])
       }

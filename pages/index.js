@@ -77,33 +77,39 @@ const Snake = () => {
 
   const [food, setFood] = useState([{ x: 4, y: 10 }]);
   const [score, setScore] = useState(0);
-  const [scoreUp, setScoreUp]=useState(false);
-  const [gameOver, setGameOver]=useState(false);
+  const [scoreUp, setScoreUp] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [started, setStarted] = useState(false);
   // move the snake
   useEffect(() => {
     const runSingleStep = () => {
       setSnake((snake) => {
         const head = snake[0];
-        //console.log(direction);
         let newHead = { x: head.x + direction.x, y: head.y + direction.y };
-        if(isSnake(newHead)){
-          setGameOver((gameOver)=>true)
+
+        //if snake touch itself, game over.
+        if (isSnake(newHead)) {
+          setGameOver((gameOver) => true);
           return snake;
         }
-
-        if(newHead.x>24) newHead.x=0;
-        if(newHead.x<0)  newHead.x=24;
-        if(newHead.y>24) newHead.y=0;
-        if(newHead.y<0)  newHead.y=24;
+        //if goes to out of right boundary, appears from left
+        if (newHead.x > 24) newHead.x = 0;
+        //if goes to out of left boundary, appears from right
+        if (newHead.x < 0) newHead.x = 24;
+        //if goes to out of top boundary, appears from bottom
+        if (newHead.y > 24) newHead.y = 0;
+        //if goes to out of bottom boundary, appears from top
+        if (newHead.y < 0) newHead.y = 24;
         // make a new snake by extending head
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
         const newSnake = [newHead, ...snake];
 
         // remove tail
-        if(!scoreUp){
+        if (!scoreUp) {
           newSnake.pop();
         }
-        setScoreUp((scoreUp)=>false)
+        setScoreUp((scoreUp) => false);
+        setStarted(true);
         return newSnake;
       });
     };
@@ -112,18 +118,18 @@ const Snake = () => {
     let timer = setInterval(runSingleStep, 500);
 
     return () => clearInterval(timer);
-  }, [direction, food,scoreUp]);
+  }, [direction, food, scoreUp]);
 
-
-  useEffect(()=>{
-    if(gameOver){ 
-      setSnake((snake)=>snake= getDefaultSnake())
-      setFood((food)=>food=[{x:4,y:10}])
-      setScore((score)=>0)
-      setGameOver((gameOver)=>false)
+  useEffect(() => {
+    if (gameOver) {
+      //if game is over, everything will be reset.
+      setSnake((snake) => (snake = getDefaultSnake()));
+      setFood((food) => (food = [{ x: 4, y: 10 }]));
+      setScore((score) => 0);
+      setGameOver((gameOver) => false);
     }
-    
-  },[gameOver])
+  }, [gameOver]);
+
   // update score whenever head touches a food
   useEffect(() => {
     const head = snake[0];
@@ -131,27 +137,60 @@ const Snake = () => {
       setScore((score) => {
         return score + 1;
       });
-      setScoreUp((scoreUp)=>true)
+      setScoreUp((scoreUp) => true);
       let newFood = getRandomCell();
       while (isSnake(newFood)) {
         newFood = getRandomCell();
       }
       let collideFoodPosition = collideFood(head);
-      food.push(newFood)
-      newFood=food.filter((point)=>{
-        let abc = (point.x!=collideFoodPosition[0].x && point.y!=collideFoodPosition[0].y)
-        return abc
-      })
-      console.log(newFood);
-      setFood((food)=>{
-        return food=newFood
+      food.push(newFood);
+      newFood = food.filter((point) => {
+        let abc =
+          point.x != collideFoodPosition[0].x &&
+          point.y != collideFoodPosition[0].y;
+        return abc;
+      });
+      setFood((food) => {
+        return (food = newFood);
       });
     }
   }, [snake]);
 
+  //new food will be added after every 3 sec.
+  useEffect(() => {
+    const addFood = () => {
+      let newFood = getRandomCell();
+      while (isSnake(newFood)) {
+        newFood = getRandomCell();
+      }
+      food.push(newFood);
+      newFood = food;
+      setFood((food) => {
+        return (food = newFood);
+      });
+    };
+    addFood();
+    const addTimer = setInterval(addFood, 3000);
+    return () => clearInterval(addTimer);
+  }, [food]);
+
+  useEffect(() => {
+    const removeFood = () => {
+      if (food.length == 1) return;
+      //removes oldest food
+      food.shift();
+      let existingFood = food;
+      setFood((food) => {
+        return (food = existingFood);
+      });
+    };
+    removeFood();
+    const removeTimer = setInterval(removeFood, 10000);
+    return () => clearInterval(removeTimer);
+  }, [food]);
+
   useEffect(() => {
     const handleNavigation = (event) => {
-
       switch (event.key) {
         case "ArrowUp":
           setDirection(Direction.Top);
@@ -178,11 +217,12 @@ const Snake = () => {
   // ?. is called optional chaining
   // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining
   const isFood = ({ x, y }) =>
-      food.find((position)=>position.x === x && position.y === y);
+    food.find((position) => position.x === x && position.y === y);
+  //returns the position of the food that the snake took that time.
   const collideFood = ({ x, y }) =>
-     food.filter((position)=>position.x === x && position.y === y);
+    food.filter((position) => position.x === x && position.y === y);
   const isSnake = ({ x, y }) =>
-     snake.find((position) => position.x === x && position.y === y);
+    snake.find((position) => position.x === x && position.y === y);
 
   const cells = [];
   for (let x = 0; x < Config.width; x++) {
