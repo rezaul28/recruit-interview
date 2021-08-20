@@ -136,19 +136,19 @@ const Snake = () => {
         return score + 1;
       });
       setScoreUp((scoreUp) => true);
-      let newFood = getRandomCell();
-      while (isSnake(newFood)) {
-        newFood = getRandomCell();
-      }
-      let collideFoodPosition = collideFood(head);
-      food.push(newFood);
-      newFood = food.filter((point) => {
-        let abc =
-          point.x != collideFoodPosition[0].x &&
-          point.y != collideFoodPosition[0].y;
-        return abc;
-      });
       setFood((food) => {
+        let newFood = getRandomCell();
+        while (isSnake(newFood)) {
+          newFood = getRandomCell();
+        }
+        let collideFoodPosition = collideFood(head);
+        food.push(newFood);
+        newFood = food.filter((point) => {
+          let abc =
+            point.x != collideFoodPosition[0].x &&
+            point.y != collideFoodPosition[0].y;
+          return abc;
+        });
         return (food = newFood);
       });
     }
@@ -157,56 +157,61 @@ const Snake = () => {
   //new food will be added after every 3 sec.
   useEffect(() => {
     const addFood = () => {
-      let newFood = getRandomCell();
-      while (isSnake(newFood)) {
-        newFood = getRandomCell();
-      }
-      food.push(newFood);
-      newFood = food;
-      setFood((food) => {
-        return (food = newFood);
-      });
+      setTimeout(() => {
+        let newFood = getRandomCell();
+        while (isSnake(newFood)) {
+          newFood = getRandomCell();
+        }
+        setFood((food) => {
+          food.push(newFood);
+          newFood = food;
+          return (food = newFood);
+        });
+        addFood();
+      }, 3000);
     };
     addFood();
-    const addTimer = setInterval(addFood, 3000);
-    return () => clearInterval(addTimer);
-  }, [food]);
+  }, []);
 
   useEffect(() => {
-    const removeFood = () => {
-      if (food.length == 1) return;
-      //removes oldest food
-      food.shift();
-      let existingFood = food;
-      setFood((food) => {
-        return (food = existingFood);
-      });
+    const removeFood = (timeInterval) => {
+      console.log("called");
+      setTimeout(() => {
+        setFood((food) => {
+          if (food.length == 1) return food;
+          //removes oldest food
+          food.shift();
+          let existingFood = food;
+          return existingFood;
+        });
+        //always calls removedFood with 3sec time interval.
+        removeFood(3000);
+      }, timeInterval);
     };
-    removeFood();
-    const removeTimer = setInterval(removeFood, 10000);
-    return () => clearInterval(removeTimer);
+    //removedFood function called with 10sec timeOut if game is just started or score is changed.
+    removeFood(10000);
   }, [food]);
 
   useEffect(() => {
     const handleNavigation = (event) => {
       switch (event.key) {
         case "ArrowUp":
-          if(JSON.stringify(direction)!=JSON.stringify(Direction.Bottom))
+          if (JSON.stringify(direction) != JSON.stringify(Direction.Bottom))
             setDirection(Direction.Top);
           break;
 
         case "ArrowDown":
-          if(JSON.stringify(direction)!=JSON.stringify(Direction.Top))
+          if (JSON.stringify(direction) != JSON.stringify(Direction.Top))
             setDirection(Direction.Bottom);
           break;
 
         case "ArrowLeft":
-          if(JSON.stringify(direction)!=JSON.stringify(Direction.Right))
+          if (JSON.stringify(direction) != JSON.stringify(Direction.Right))
             setDirection(Direction.Left);
           break;
 
         case "ArrowRight":
-          if(JSON.stringify(direction)!=JSON.stringify(Direction.Left))
+          if (JSON.stringify(direction) != JSON.stringify(Direction.Left))
             setDirection(Direction.Right);
           break;
       }
